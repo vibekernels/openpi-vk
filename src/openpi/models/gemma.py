@@ -93,7 +93,7 @@ def get_config(variant: Variant) -> Config:
             num_heads=8,
             num_kv_heads=1,
             head_dim=256,
-            lora_configs={"attn": lora.LoRAConfig(rank=16, alpha=16.0), "ffn": lora.LoRAConfig(rank=16, alpha=16.0)},
+            lora_configs={"attn": lora.LoRAConfig(rank=16, alpha=64.0), "ffn": lora.LoRAConfig(rank=16, alpha=64.0)},
         )
     if variant == "gemma_300m_lora":
         # 311M params
@@ -104,7 +104,7 @@ def get_config(variant: Variant) -> Config:
             num_heads=8,
             num_kv_heads=1,
             head_dim=256,
-            lora_configs={"attn": lora.LoRAConfig(rank=32, alpha=32.0), "ffn": lora.LoRAConfig(rank=32, alpha=32.0)},
+            lora_configs={"attn": lora.LoRAConfig(rank=32, alpha=128.0), "ffn": lora.LoRAConfig(rank=32, alpha=128.0)},
         )
     raise ValueError(f"Unknown variant: {variant}")
 
