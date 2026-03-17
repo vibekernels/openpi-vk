@@ -152,8 +152,13 @@ def main(
     meta = lerobot_dataset.LeRobotDatasetMetadata(repo_id)
     data_root = Path(meta.root)
 
-    # Find all episode parquet files
+    # Check if parquet files exist; if not, trigger download via LeRobotDataset
     episode_files = sorted(data_root.glob("data/chunk-*/episode_*.parquet"))
+    if not episode_files:
+        print(f"No parquet files cached yet — downloading {repo_id}...")
+        lerobot_dataset.LeRobotDataset(repo_id)
+        episode_files = sorted(data_root.glob("data/chunk-*/episode_*.parquet"))
+
     print(f"Found {len(episode_files)} episode files in {data_root}")
 
     if max_episodes is not None:
@@ -176,9 +181,20 @@ def main(
     action_horizon = config.model.action_horizon
     action_dim = config.model.action_dim
 
-    # LeRobot parquet column names
+    # Resolve parquet column names from the repack transform.
+    # The repack maps new_key -> parquet_col (e.g. "state" -> "observation.state").
     state_col = "state"
     actions_col = "actions"
+    for transform in data_config.repack_transforms.inputs:
+        if isinstance(transform, transforms.RepackTransform):
+            flat = transforms.flatten_dict(transform.structure)
+            for new_key, parquet_col in flat.items():
+                if new_key == "state":
+                    state_col = parquet_col
+                elif new_key == "actions":
+                    actions_col = parquet_col
+            break
+    print(f"Parquet columns: state='{state_col}', actions='{actions_col}'")
 
     num_workers = max(1, min(num_workers, len(episode_files)))
     print(f"Using {num_workers} workers (forkserver)")
