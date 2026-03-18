@@ -103,7 +103,10 @@ class SGD(OptimizerConfig):
 
 
 def create_optimizer(
-    optimizer: OptimizerConfig, lr_schedule: LRScheduleConfig, weight_decay_mask: at.PyTree | None = None
+    optimizer: OptimizerConfig,
+    lr_schedule: LRScheduleConfig,
+    weight_decay_mask: at.PyTree | None = None,
+    grad_accumulation_steps: int = 1,
 ) -> optax.GradientTransformation:
     lr = lr_schedule.create()
     return optimizer.create(lr, weight_decay_mask=weight_decay_mask)
